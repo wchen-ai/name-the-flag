@@ -23,3 +23,13 @@
 @media(max-width:800px){.hide-control{margin-inline-start:0}.control-label{display:none}}
 @media(max-width:600px){.intro{display:block}.total{flex-direction:row;justify-content:flex-start;align-items:baseline;gap:10px;margin-top:18px}.total strong{font-size:30px;letter-spacing:-.04em}.total span{font-size:12px;margin-top:0;white-space:normal}.intro-copy{max-width:none}.hide-control .text-button{margin-inline-start:auto}.major-list{gap:12px}}
 @media(max-width:420px){.language-control{width:100%;justify-content:space-between}.language-control select{flex:0 1 180px}.masthead{gap:12px}.major-list{grid-template-columns:1fr}}
+
+/* Color shortcuts stay within reach while browsing the flags. */
+.floating-colors{position:fixed;inset-inline-end:max(20px,env(safe-area-inset-right));bottom:calc(20px + env(safe-area-inset-bottom));z-index:6;max-width:calc(100vw - 40px)}
+.color-picker-toggle{display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;max-width:100%;padding:12px 18px;border:1px solid #ffffff33;border-radius:999px;background:var(--ink);color:white;font-size:14px;font-weight:600;box-shadow:0 4px 20px #26314430}
+.color-picker-toggle:hover{background:#354259}.color-picker-toggle .rainbow-icon{width:22px;height:22px;flex-shrink:0}.picker-chevron{font-size:20px;line-height:1}.color-picker-toggle[aria-expanded="true"] .picker-chevron{transform:rotate(180deg)}
+.color-picker{position:absolute;inset-inline-end:0;bottom:calc(100% + 12px);width:260px;max-width:calc(100vw - 40px);max-height:calc(100vh - 120px - env(safe-area-inset-bottom));max-height:calc(100dvh - 120px - env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain;padding:16px;background:white;border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 32px #26314426}
+#color-picker-title{margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.5}.color-picker-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.color-picker-option{display:flex;align-items:center;gap:10px;min-height:48px;padding:10px;border:1px solid var(--line);border-radius:9px;background:#f6f7f9;text-align:start;font-size:14px;overflow-wrap:anywhere}.color-picker-option .dot{width:15px;height:15px}.color-picker-option:hover:not(:disabled){border-color:#9bb980;background:#eff6e8}.color-picker-option:disabled{opacity:.4}
+footer{padding-bottom:110px}.toast{bottom:calc(88px + env(safe-area-inset-bottom))}
+[dir="rtl"] .floating-colors{inset-inline-end:max(20px,env(safe-area-inset-left))}

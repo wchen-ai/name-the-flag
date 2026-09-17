@@ -10,6 +10,7 @@ Website: https://wchen-ai.github.io/name-the-flag/
 - Localized country names and sorting, including a right-to-left Arabic layout.
 - Hide individual flags or a preset of 16 countries; undo the last hide or restore all flags.
 - Responsive layouts and bundled flag images.
+- A floating color picker to jump between color groups from anywhere on the page.
 - Remembers your language when browser storage is available. Hidden flags and sorting reset on reload.
 
 ## Run locally

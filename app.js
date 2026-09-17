@@ -90,6 +90,27 @@ function countryGroups(visible) {
   }
   return [...groups.values()];
 }
+function closeColorPicker(restoreFocus = false) {
+  $('color-picker').hidden = true;
+  $('color-picker-toggle').setAttribute('aria-expanded', 'false');
+  if (restoreFocus) $('color-picker-toggle').focus({preventScroll:true});
+}
+function renderColorPicker(visible) {
+  const hadFocus = $('color-picker').contains(document.activeElement);
+  closeColorPicker(hadFocus);
+  const available = new Set(visible.map(c => c.color));
+  const options = document.createDocumentFragment();
+  colors.forEach(([key], index) => {
+    const button = element('button', 'color-picker-option');
+    button.type = 'button';
+    button.dataset.color = key;
+    button.disabled = !available.has(key);
+    button.append(dot(key), element('span', null, TRANSLATIONS[language].colors[index]));
+    options.append(button);
+  });
+  $('color-picker-options').replaceChildren(options);
+  $('floating-colors').hidden = visible.length === 0;
+}
 function render() {
   const visible = visibleCountries(); $('total').textContent = COUNTRIES.length;
   $('count').textContent = t('shown',{count:visible.length,total:COUNTRIES.length}) + ' · ' + t(sort === 'color' ? 'colorOrder' : 'alphaOrder');
@@ -126,6 +147,7 @@ function render() {
   $('group-nav').replaceChildren(nav); $('group-nav').hidden = sort === 'alpha' && /^(zh|ja|ko)/.test(language);
   $('collection').replaceChildren(content);
   if (!visible.length) $('collection').append(element('div','empty-state',t('empty')));
+  renderColorPicker(visible);
 }
 function setLanguage(value, remember = true) {
   if (!languageIds.includes(value)) throw new Error('Unsupported language');
@@ -151,6 +173,37 @@ $('manage').onclick = () => $('major-dialog').showModal();
 $('close-dialog').onclick = $('dialog-done').onclick = () => $('major-dialog').close();
 $('major-dialog').addEventListener('click', e => {
   if (e.target === $('major-dialog')) { const r = e.target.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close(); }
+});
+$('color-picker-toggle').onclick = () => {
+  if (!$('color-picker').hidden) { closeColorPicker(); return; }
+  $('color-picker').hidden = false;
+  $('color-picker-toggle').setAttribute('aria-expanded', 'true');
+  $('color-picker-options').querySelector('button:not(:disabled)')?.focus({preventScroll:true});
+};
+$('color-picker-options').onclick = e => {
+  const button = e.target.closest('button[data-color]');
+  if (!button || button.disabled) return;
+  const key = button.dataset.color;
+  closeColorPicker();
+  if (sort !== 'color') setSort('color');
+  const section = $('group-' + key);
+  if (!section) return;
+  const heading = section.querySelector('h2');
+  heading.tabIndex = -1;
+  heading.focus({preventScroll:true});
+  section.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block:'start'});
+};
+document.addEventListener('click', e => {
+  if (!$('floating-colors').contains(e.target)) closeColorPicker();
+});
+$('floating-colors').addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('color-picker').hidden) {
+    e.preventDefault();
+    closeColorPicker(true);
+  }
+});
+$('floating-colors').addEventListener('focusout', e => {
+  if (!$('floating-colors').contains(e.relatedTarget)) closeColorPicker();
 });
 setLanguage(language,false);
 if (document.modelContext?.registerTool) {
