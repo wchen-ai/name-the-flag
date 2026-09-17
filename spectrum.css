@@ -13,12 +13,21 @@
   background: #f5f5f5;
 }
 body { font-size: 14px; }
+.masthead, main { max-width: 1680px; padding-inline: 24px; }
+.masthead { padding-block: 10px; gap: 12px; }
+.brand-icon { width: 34px; height: 34px; font-size: 24px; }
+.intro { padding: 14px 0; gap: 16px; align-items: center; }
+.intro .eyebrow, .intro-copy { display: none; }
+h1 { font-size: clamp(24px, 3vw, 32px); }
+.total { flex-direction: row; align-items: baseline; gap: 8px; margin-top: 0; }
+.total strong { font-size: 28px; }
+.total span { margin-top: 0; }
 .brand, .eyebrow, .total strong, .az-icon, .country-en { font-family: inherit; }
 .brand { letter-spacing: .04em; }
 .brand-icon { background: var(--accent); color: white; border-radius: 8px; }
 .brand-sub, .eyebrow, .country-zh, .method-note, footer { color: var(--muted); }
 .title-dot { color: var(--accent); }
-.controls { border-radius: 12px; padding: 16px 20px; gap: 16px; }
+.controls { border-radius: 10px; padding: 6px 12px; gap: 8px 16px; }
 .segmented { border: 1px solid var(--line); background: #fafafa; padding: 3px; gap: 3px; }
 .segmented button { color: var(--ink); font-weight: 600; }
 .segmented button.selected { background: var(--accent); box-shadow: none; }
@@ -32,10 +41,14 @@ button:focus-visible, a:focus-visible, select:focus-visible,
 .language-control select:focus-visible, input:focus-visible + .switch {
   outline: 2px solid var(--focus); outline-offset: 3px;
 }
-.view-controls { background: white; border: 1px solid var(--line); border-radius: 12px; margin-top: 12px; padding: 20px; }
+.filter-disclosure { margin-top: 8px; background: white; border: 1px solid var(--line); border-radius: 10px; }
+.filter-disclosure > summary { min-height: 44px; padding: 12px; cursor: pointer; font-weight: 600; line-height: 20px; }
+.filter-disclosure > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 8px; }
+.filter-disclosure[open] > summary { border-bottom: 1px solid var(--line); }
+.view-controls { background: white; border: 0; border-radius: 10px; margin: 0; padding: 12px; }
 .view-controls fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
-.view-controls legend { padding: 0; margin-bottom: 10px; font-size: 13px; font-weight: 600; color: var(--muted); }
-.view-controls .pattern-control, .view-controls .color-filter-control { margin-top: 20px; }
+.view-controls legend { padding: 0; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.view-controls .pattern-control, .view-controls .color-filter-control { margin-top: 12px; }
 .color-filter-options { display: flex; flex-wrap: wrap; gap: 8px; }
 .color-filter-options .color-picker-option { min-width: 100px; }
 .column-choices { display: inline-flex; gap: 4px; padding: 3px; background: #fafafa; border: 1px solid var(--line); border-radius: 8px; }
@@ -51,7 +64,7 @@ button:focus-visible, a:focus-visible, select:focus-visible,
 .pattern-choice { display: flex; align-items: center; gap: 9px; min-height: 44px; padding: 10px 14px; background: #fff; color: var(--ink); border: 1px solid #b5b5b5; border-radius: 8px; font-size: 14px; line-height: 1.4; text-align: start; }
 .pattern-choice:hover { background: #f0f0f0; border-color: #8e8e8e; }
 .pattern-choice[aria-pressed="true"] { background: var(--accent-soft); color: #004da8; border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
-.pattern-help { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 12px 0 0; }
+.pattern-help { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 6px 0 0; }
 .pattern-icon { display: block; flex-shrink: 0; width: 24px; height: 17px; border: 1px solid currentColor; border-radius: 2px; position: relative; overflow: hidden; }
 .pattern-all { background: repeating-linear-gradient(90deg, transparent 0 5px, currentColor 5px 6px), repeating-linear-gradient(0deg, transparent 0 4px, currentColor 4px 5px); }
 .pattern-vertical { background: linear-gradient(90deg, currentColor 33%, transparent 33% 66%, currentColor 66%); }
@@ -61,15 +74,22 @@ button:focus-visible, a:focus-visible, select:focus-visible,
 .pattern-cross { background: linear-gradient(90deg, transparent 29%, currentColor 29% 47%, transparent 47%), linear-gradient(0deg, transparent 37%, currentColor 37% 62%, transparent 62%); }
 .group-nav a { background: #fff; border-color: var(--line); }
 .group-nav a:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
-.flag-grid { grid-template-columns: repeat(var(--flag-columns), minmax(0, 1fr)); }
+.group-nav { padding-block: 10px; gap: 6px; }
+.results-meta { min-height: 40px; }
+.results-meta p { margin-block: 8px; }
+.flag-section { margin-bottom: 18px; scroll-margin-top: 12px; }
+.section-heading { margin-bottom: 8px; gap: 8px; }
+.flag-grid { grid-template-columns: repeat(var(--flag-columns), minmax(0, 1fr)); gap: 10px; }
 .flag-card { border-color: var(--line); border-radius: 10px; }
 .flag-card:hover { border-color: #959595; box-shadow: 0 2px 8px #0000000a; }
-.flag-visual { height: clamp(96px, 14vw, 180px); padding: 32px 16px 16px; margin: 0 12px; }
+.flag-visual { height: clamp(96px, 13vw, 160px); padding: 28px 10px 2px; margin: 0 8px; }
 .flag-image { max-height: 100%; max-width: 100%; width: auto; height: auto; object-fit: contain; }
-.card-info { padding: 12px 16px 16px; }
-.country-en { font-size: 18px; line-height: 1.5; color: var(--ink); }
+.card-info { padding: 6px 10px 8px; }
+.country-en { font-size: 18px; line-height: 1.5; color: var(--ink); margin-bottom: 3px; }
 .country-zh { font-size: 14px; }
-.hide-card { color: #626262; }
+.country-bottom { min-height: 0; }
+.palette { padding-top: 0; }
+.hide-card { color: #626262; width: 28px; height: 28px; top: 0; inset-inline-end: 0; }
 .section-count { color: var(--muted); border-color: var(--line); }
 .color-picker-toggle { background: var(--accent); border: none; box-shadow: 0 4px 16px #00000026; }
 .color-picker-toggle:hover { background: #0054b6; }
@@ -89,24 +109,41 @@ button:focus-visible, a:focus-visible, select:focus-visible,
 .color-picker-option[data-color="all"] { justify-content: center; }
 .toast { background: #292929; }
 .toast button { color: #b3d7ff; }
+.method-note { margin-bottom: 14px; }
+footer { padding-top: 14px; }
 @media (max-width: 800px) {
   .control-label { display: none; }
+  .masthead, main { padding-inline: 16px; }
 }
 @media (max-width: 600px) {
   :root { --flag-columns: 2; }
-  .view-controls { padding: 16px; }
+  .masthead, main { padding-inline: 12px; }
+  .masthead { padding-block: 8px; gap: 8px; flex-wrap: nowrap; }
+  .brand { gap: 7px; font-size: 12px; }
+  .brand-icon { width: 28px; height: 28px; font-size: 21px; }
+  .brand-sub { font-size: 9px; }
+  .language-control { width: auto; flex: 0 1 150px; gap: 0; }
+  #language-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .language-control select { width: 100%; flex: auto; min-width: 0; padding-inline: 6px; font-size: 14px; }
+  .intro { display: flex; flex-wrap: wrap; padding-block: 10px; gap: 4px 12px; }
+  .intro .total { flex-direction: row; margin-top: 0; gap: 6px; }
+  .total strong { font-size: 24px; }
+  .total span { font-size: 11px; }
+  .controls { padding: 4px 8px; gap: 2px; }
+  .segmented button { padding-block: 6px; }
+  .view-controls { padding: 10px; }
   .pattern-choice { flex: 1 1 calc(50% - 8px); padding: 10px; font-size: 13px; }
-  .flag-grid { gap: 10px; }
-  .flag-visual { margin: 0 8px; padding: 30px 4px 8px; height: 112px; }
-  .card-info { padding: 8px 10px 12px; }
+  .flag-grid { gap: 8px; }
+  .flag-visual { margin: 0 6px; padding: 28px 4px 2px; height: 104px; }
+  .card-info { padding: 4px 8px 6px; }
   .country-en { font-size: 16px; }
   [data-columns="3"] .country-bottom, [data-columns="4"] .country-bottom { display: none; }
-  [data-columns="3"] .card-info, [data-columns="4"] .card-info { padding: 6px 6px 10px; }
+  [data-columns="3"] .card-info, [data-columns="4"] .card-info { padding: 4px 5px 6px; }
   [data-columns="3"] .country-en { font-size: 15px; }
   [data-columns="4"] .country-en { font-size: 14px; }
   [data-columns="4"] .flag-grid { gap: 6px; }
-  [data-columns="3"] .flag-visual { height: 92px; }
-  [data-columns="4"] .flag-visual { margin: 0 4px; padding-inline: 0; height: 80px; }
+  [data-columns="3"] .flag-visual { height: 84px; }
+  [data-columns="4"] .flag-visual { margin: 0 4px; padding-inline: 0; height: 72px; }
   .color-picker { padding: 16px; }
 }
 @media (forced-colors: active) {

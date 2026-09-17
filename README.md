@@ -4,12 +4,15 @@ A multilingual flag cheatsheet with 195 flags, color and name sorting, and contr
 
 Website: https://wchen-ai.github.io/name-the-flag/
 
+See [project progress](PROGRESS.md) for completed milestones, current behavior, validation, and remaining checks.
+
 ## Features
 
 - English, Simplified Chinese, Traditional Chinese, Spanish, French, German, Portuguese, Japanese, Korean, and Arabic.
 - Localized country names and sorting, including a right-to-left Arabic layout.
 - Hide individual flags or a preset of 16 countries; undo the last hide or restore all flags.
 - Responsive layouts and bundled flag images.
+- Compact header, collapsed Display options, and tighter card spacing to leave more room for flags. All filters also remain available in the floating Browse panel.
 - Choose 2, 3, or 4 columns, including on mobile.
 - Filter by left/right bands, up/down bands, central symbols, diagonals, or crosses. Multiple selections show flags matching any chosen pattern.
 - Multi-select dominant-color filters: results match any selected color and any selected pattern. All colors clears only the color filter.
