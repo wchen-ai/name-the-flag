@@ -8,6 +8,7 @@ const hidden = new Set();
 const $ = id => document.getElementById(id);
 let sort = 'color', hideMajor = false, lastHidden = null, toastTimer;
 const selectedPatterns = new Set();
+const selectedColors = new Set();
 let columns = window.matchMedia('(max-width: 600px)').matches ? 2 : 4;
 try {
   const saved = Number(localStorage.getItem('flag-cheatsheet-columns'));
@@ -47,7 +48,7 @@ function compareCountries(a, b) {
   return countryName(a).localeCompare(countryName(b), collationLocale()) || a.code.localeCompare(b.code);
 }
 function visibleCountries() {
-  return COUNTRIES.filter(c => !hidden.has(c.code) && !(hideMajor && majorCodes.has(c.code)) && matchesFlagPatterns(c, selectedPatterns)).sort(compareCountries);
+  return COUNTRIES.filter(c => !hidden.has(c.code) && !(hideMajor && majorCodes.has(c.code)) && matchesFlagPatterns(c, selectedPatterns) && (selectedColors.size === 0 || selectedColors.has(c.color))).sort(compareCountries);
 }
 function element(tag, cls, txt) {
   const e = document.createElement(tag); if (cls) e.className = cls;
@@ -56,6 +57,24 @@ function element(tag, cls, txt) {
 function dot(key) {
   const d = element('span','dot'); d.style.background = colors.find(x => x[0] === key)?.[1] || '#aaa';
   d.setAttribute('aria-hidden','true'); return d;
+}
+function buildColorControls(container, floating = false) {
+  for (const key of ['all', ...colors.map(([id]) => id)]) {
+    const button = element('button', 'color-picker-option');
+    button.type = 'button'; button.dataset.color = key;
+    const label = element('span');
+    if (key === 'all') label.dataset.i18n = 'allColors';
+    else label.dataset.colorLabel = key;
+    if (key !== 'all') button.append(dot(key));
+    button.append(label); container.append(button);
+    button.onclick = () => {
+      if (key === 'all') selectedColors.clear();
+      else if (selectedColors.has(key)) selectedColors.delete(key);
+      else selectedColors.add(key);
+      render();
+      if (floating) $('collection').scrollIntoView({block:'start', behavior:'instant'});
+    };
+  }
 }
 function buildViewControls(container, prefix) {
   const layout = element('fieldset', 'layout-control');
@@ -73,6 +92,15 @@ function buildViewControls(container, prefix) {
     input.onchange = () => setColumns(count);
   }
   layout.append(choices); container.append(layout);
+  if (prefix === 'main') {
+    const fieldset = element('fieldset', 'color-filter-control');
+    const colorLegend = element('legend'); colorLegend.dataset.i18n = 'colorFilters';
+    const options = element('div', 'color-filter-options'); options.id = 'main-color-options';
+    buildColorControls(options);
+    const help = element('p', 'pattern-help'); help.id = 'main-color-help'; help.dataset.i18n = 'colorHelp';
+    fieldset.setAttribute('aria-describedby', help.id);
+    fieldset.append(colorLegend, options, help); container.append(fieldset);
+  }
   const patterns = element('fieldset', 'pattern-control');
   const patternLegend = element('legend'); patternLegend.dataset.i18n = 'pattern';
   patterns.append(patternLegend);
@@ -104,6 +132,9 @@ function syncViewControls() {
   for (const button of document.querySelectorAll('[data-pattern]')) {
     button.setAttribute('aria-pressed', String(button.dataset.pattern === 'all' ? selectedPatterns.size === 0 : selectedPatterns.has(button.dataset.pattern)));
   }
+  for (const button of document.querySelectorAll('[data-color]')) {
+    button.setAttribute('aria-pressed', String(button.dataset.color === 'all' ? selectedColors.size === 0 : selectedColors.has(button.dataset.color)));
+  }
 }
 function setColumns(value) {
   if (![2, 3, 4].includes(value)) throw new Error('Invalid column count');
@@ -125,6 +156,7 @@ function applyTranslations() {
     '#dialog-title':'dialogTitle', '.dialog-copy':'dialogCopy', '#dialog-done':'done', '#undo':'undo'
   })) document.querySelector(selector).textContent = t(key);
   for (const e of document.querySelectorAll('[data-i18n]')) e.textContent = t(e.getAttribute('data-i18n'));
+  for (const e of document.querySelectorAll('[data-color-label]')) e.textContent = TRANSLATIONS[language].colors[colors.findIndex(([key]) => key === e.dataset.colorLabel)];
   document.querySelector('.controls').setAttribute('aria-label', t('options'));
   document.querySelector('.segmented').setAttribute('aria-label', t('sort'));
   $('group-nav').setAttribute('aria-label', t('jump'));
@@ -155,29 +187,10 @@ function closeColorPicker(restoreFocus = false) {
   $('color-picker-toggle').setAttribute('aria-expanded', 'false');
   if (restoreFocus) $('color-picker-toggle').focus({preventScroll:true});
 }
-function renderColorPicker(visible) {
-  const focusedColor = document.activeElement?.dataset.color;
-  const available = new Set(visible.map(c => c.color));
-  const options = document.createDocumentFragment();
-  colors.forEach(([key], index) => {
-    const button = element('button', 'color-picker-option');
-    button.type = 'button';
-    button.dataset.color = key;
-    button.disabled = !available.has(key);
-    button.append(dot(key), element('span', null, TRANSLATIONS[language].colors[index]));
-    options.append(button);
-  });
-  $('color-picker-options').replaceChildren(options);
-  $('floating-colors').hidden = false;
-  if (focusedColor) {
-    const replacement = $('color-picker-options').querySelector(`[data-color="${focusedColor}"]:not(:disabled)`);
-    (replacement || $('color-picker-toggle')).focus({preventScroll:true});
-  }
-}
 function render() {
   const visible = visibleCountries(); $('total').textContent = COUNTRIES.length;
   $('count').textContent = t('shown',{count:visible.length,total:COUNTRIES.length}) + ' · ' + t(sort === 'color' ? 'colorOrder' : 'alphaOrder');
-  $('restore').hidden = hidden.size === 0 && !hideMajor && selectedPatterns.size === 0;
+  $('restore').hidden = hidden.size === 0 && !hideMajor && selectedPatterns.size === 0 && selectedColors.size === 0;
   for (const key of ['color','alpha']) {
     $('sort-' + key).classList.toggle('selected', sort === key);
     $('sort-' + key).setAttribute('aria-pressed', String(sort === key));
@@ -186,8 +199,10 @@ function render() {
   const groups = countryGroups(visible), nav = document.createDocumentFragment(), content = document.createDocumentFragment();
   for (const g of groups) {
     if (!g.items.length) continue;
-    const anchor = element('a'); anchor.href = '#group-' + g.key;
-    if (sort === 'color') anchor.append(dot(g.key)); anchor.append(g.label); nav.append(anchor);
+    if (sort === 'alpha') {
+      const anchor = element('a'); anchor.href = '#group-' + g.key;
+      anchor.append(g.label); nav.append(anchor);
+    }
     const section = element('section','flag-section'); section.id = 'group-' + g.key;
     const heading = element('div','section-heading'); if (sort === 'color') heading.append(dot(g.key));
     heading.append(element('h2',null,g.label),element('span','section-count',String(g.items.length)),element('span','section-rule')); section.append(heading);
@@ -207,10 +222,9 @@ function render() {
     }
     section.append(grid); content.append(section);
   }
-  $('group-nav').replaceChildren(nav); $('group-nav').hidden = sort === 'alpha' && /^(zh|ja|ko)/.test(language);
+  $('group-nav').replaceChildren(nav); $('group-nav').hidden = sort === 'color' || /^(zh|ja|ko)/.test(language);
   $('collection').replaceChildren(content);
-  if (!visible.length) $('collection').append(element('div','empty-state',t(selectedPatterns.size ? 'filteredEmpty' : 'empty')));
-  renderColorPicker(visible);
+  if (!visible.length) $('collection').append(element('div','empty-state',t(selectedPatterns.size || selectedColors.size ? 'filteredEmpty' : 'empty')));
   syncViewControls();
 }
 function setLanguage(value, remember = true) {
@@ -231,7 +245,7 @@ for (const [id, label] of LANGUAGES) { const option = element('option',null,labe
 $('language-select').onchange = e => setLanguage(e.target.value);
 $('sort-color').onclick = () => setSort('color'); $('sort-alpha').onclick = () => setSort('alpha');
 $('major-toggle').onchange = e => { hideMajor = e.target.checked; render(); };
-$('restore').onclick = () => { hidden.clear(); selectedPatterns.clear(); hideMajor = false; lastHidden = null; $('toast').hidden = true; render(); };
+$('restore').onclick = () => { hidden.clear(); selectedPatterns.clear(); selectedColors.clear(); hideMajor = false; lastHidden = null; $('toast').hidden = true; render(); };
 $('undo').onclick = () => { if (lastHidden) { hidden.delete(lastHidden); lastHidden = null; render(); } $('toast').hidden = true; };
 $('manage').onclick = () => $('major-dialog').showModal();
 $('close-dialog').onclick = $('dialog-done').onclick = () => $('major-dialog').close();
@@ -243,20 +257,6 @@ $('color-picker-toggle').onclick = () => {
   $('color-picker').hidden = false;
   $('color-picker-toggle').setAttribute('aria-expanded', 'true');
   ($('color-picker-options').querySelector('button:not(:disabled)') || $('floating-view-controls').querySelector('input:checked'))?.focus({preventScroll:true});
-};
-$('color-picker-options').onclick = e => {
-  const button = e.target.closest('button[data-color]');
-  if (!button || button.disabled) return;
-  const key = button.dataset.color;
-  closeColorPicker();
-  if (sort !== 'color') setSort('color');
-  const section = $('group-' + key);
-  if (!section) return;
-  const heading = section.querySelector('h2');
-  heading.tabIndex = -1;
-  heading.focus({preventScroll:true});
-  // Jump immediately so long pages and mobile browsers always reach the target.
-  section.scrollIntoView({behavior:'instant', block:'start'});
 };
 document.addEventListener('pointerdown', e => {
   if (!$('floating-colors').contains(e.target)) closeColorPicker();
@@ -273,6 +273,8 @@ $('floating-colors').addEventListener('keydown', e => {
 // Do not dismiss on blur: touch/Safari can blur before a color's click arrives.
 buildViewControls($('view-controls'), 'main');
 buildViewControls($('floating-view-controls'), 'floating');
+buildColorControls($('color-picker-options'), true);
+$('floating-colors').hidden = false;
 setLanguage(language,false);
 if (document.modelContext?.registerTool) {
   const lifecycle = new AbortController();

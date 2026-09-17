@@ -12,8 +12,10 @@ Website: https://wchen-ai.github.io/name-the-flag/
 - Responsive layouts and bundled flag images.
 - Choose 2, 3, or 4 columns, including on mobile.
 - Filter by left/right bands, up/down bands, central symbols, diagonals, or crosses. Multiple selections show flags matching any chosen pattern.
-- A floating Browse panel with color jumps, column controls, and pattern filters available anywhere on the page.
-- Remembers your language and column count when browser storage is available. Hidden flags, patterns, and sorting reset on reload.
+- Multi-select dominant-color filters: results match any selected color and any selected pattern. All colors clears only the color filter.
+- A floating Browse panel with color filters, column controls, and pattern filters available anywhere on the page.
+- Larger country names: 18px on desktop, 16px on mobile, and 15px/14px in compact mobile 3-/4-column layouts.
+- Remembers your language and column count when browser storage is available. Hidden flags, colors, patterns, and sorting reset on reload.
 - Spectrum-inspired neutral surfaces, blue selection states, native radio groups, labeled toggle buttons, and visible keyboard focus.
 
 ## Run locally
@@ -32,7 +34,7 @@ Keep `index.html`, `styles.css`, `spectrum.css`, `app.js`, `data.js`, `patterns.
 
 The website needs no build step or runtime packages. For the optional interaction regression tests, use a current Node.js 22 release or newer, run `npm ci`, then `npm test`.
 
-Tests cover column persistence, filter combinations, hiding/undo, empty states, translations, and the floating menu's click, blur, dismissal, and scroll-target behavior. They use a simulated DOM; rendered layout and physical scrolling still need a real browser check.
+Tests cover column persistence, filter combinations, hiding/undo, empty states, translations, and the floating menu's multi-selection, blur, focus, and dismissal behavior. They use a simulated DOM; rendered layout and physical scrolling still need a real browser check.
 
 ## Credits and scope
 

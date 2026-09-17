@@ -181,3 +181,57 @@ const VIEW_TRANSLATIONS = {
   }
 };
 for (const [locale, strings] of Object.entries(VIEW_TRANSLATIONS)) Object.assign(TRANSLATIONS[locale], strings);
+
+const COLOR_TRANSLATIONS = {
+  "en": {
+    "colorFilters": "Dominant color",
+    "allColors": "All colors",
+    "colorHelp": "Select one or more dominant colors. Matches any selected color and your pattern filters."
+  },
+  "zh-CN": {
+    "colorFilters": "主要颜色",
+    "allColors": "全部颜色",
+    "colorHelp": "可多选主要颜色，显示符合任意所选颜色且符合图案筛选的国旗。"
+  },
+  "zh-TW": {
+    "colorFilters": "主要顏色",
+    "allColors": "全部顏色",
+    "colorHelp": "可複選主要顏色，顯示符合任一所選顏色且符合圖案篩選的國旗。"
+  },
+  "es": {
+    "colorFilters": "Color predominante",
+    "allColors": "Todos los colores",
+    "colorHelp": "Selecciona uno o varios colores predominantes. Se muestran banderas que coincidan con cualquiera y con los filtros de diseño."
+  },
+  "fr": {
+    "colorFilters": "Couleur dominante",
+    "allColors": "Toutes les couleurs",
+    "colorHelp": "Choisissez une ou plusieurs couleurs dominantes. Les drapeaux doivent correspondre à une couleur choisie et aux filtres de motif."
+  },
+  "de": {
+    "colorFilters": "Vorherrschende Farbe",
+    "allColors": "Alle Farben",
+    "colorHelp": "Eine oder mehrere Hauptfarben wählen. Flaggen müssen zu einer gewählten Farbe und den Musterfiltern passen."
+  },
+  "pt": {
+    "colorFilters": "Cor predominante",
+    "allColors": "Todas as cores",
+    "colorHelp": "Selecione uma ou mais cores predominantes. As bandeiras devem corresponder a uma cor selecionada e aos filtros de padrão."
+  },
+  "ja": {
+    "colorFilters": "主な色",
+    "allColors": "すべての色",
+    "colorHelp": "主な色を複数選べます。選択した色のいずれかと模様の条件に一致する国旗を表示します。"
+  },
+  "ko": {
+    "colorFilters": "주요 색상",
+    "allColors": "모든 색상",
+    "colorHelp": "주요 색상을 여러 개 선택할 수 있습니다. 선택한 색상 중 하나와 무늬 필터에 일치하는 국기를 표시합니다."
+  },
+  "ar": {
+    "colorFilters": "اللون الغالب",
+    "allColors": "كل الألوان",
+    "colorHelp": "اختر لونًا غالبًا أو أكثر. تظهر الأعلام المطابقة لأي لون محدد ولمرشحات النمط."
+  }
+};
+for (const [locale, strings] of Object.entries(COLOR_TRANSLATIONS)) Object.assign(TRANSLATIONS[locale], strings);

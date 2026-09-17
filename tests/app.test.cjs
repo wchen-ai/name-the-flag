@@ -63,36 +63,80 @@ test('pattern selection combines with hiding and restores all results', t => {
   assert.equal(document.querySelector('#view-controls [data-pattern="all"]').getAttribute('aria-pressed'), 'true');
 });
 
-test('floating color selection survives pointer blur and jumps from name sorting', t => {
-  const {document, window, scrolls} = setup(t);
+test('floating colors support repeated selection after pointer blur without changing name sorting', t => {
+  const {document, window} = setup(t);
+  const choose = id => document.querySelector(`#color-picker-options [data-color="${id}"]`);
+  const has = code => !!document.querySelector(`.flag-card[data-code="${code}"]`);
   document.getElementById('sort-alpha').click();
   document.getElementById('color-picker-toggle').click();
   const panel = document.getElementById('color-picker');
   document.activeElement.dispatchEvent(new window.FocusEvent('focusout', {bubbles:true, relatedTarget:null}));
   assert.equal(panel.hidden, false, 'blur before a touch click must not dismiss the panel');
-  document.querySelector('[data-color="blue"] .dot').click();
-  assert.equal(panel.hidden, true);
-  assert.equal(scrolls.at(-1).id, 'group-blue');
-  assert.equal(document.getElementById('sort-color').getAttribute('aria-pressed'), 'true');
-  assert.equal(document.activeElement.closest('section').id, 'group-blue');
-  for (const button of [...document.querySelectorAll('#color-picker-options button:not(:disabled)')]) {
-    document.getElementById('color-picker-toggle').click();
-    button.click();
-    assert.equal(scrolls.at(-1).id, 'group-' + button.dataset.color);
-    assert.equal(panel.hidden, true);
+  choose('blue').focus();
+  choose('blue').querySelector('.dot').click();
+  assert.equal(panel.hidden, false);
+  assert.equal(document.activeElement, choose('blue'));
+  assert.ok(has('se')); assert.ok(!has('fr'));
+  choose('red').click();
+  assert.ok(has('se')); assert.ok(has('fr'));
+  assert.equal(choose('blue').getAttribute('aria-pressed'), 'true');
+  assert.equal(choose('red').getAttribute('aria-pressed'), 'true');
+  assert.equal(document.querySelector('#main-color-options [data-color="red"]').getAttribute('aria-pressed'), 'true');
+  choose('blue').click();
+  assert.ok(!has('se')); assert.ok(has('fr'));
+  assert.equal(document.getElementById('sort-alpha').getAttribute('aria-pressed'), 'true');
+  choose('red').click();
+  assert.equal(document.querySelectorAll('.flag-card').length, 195);
+  assert.equal(choose('all').getAttribute('aria-pressed'), 'true');
+});
+
+test('colors combine with patterns; All colors clears only the color selections', t => {
+  const {document} = setup(t);
+  const has = code => !!document.querySelector(`.flag-card[data-code="${code}"]`);
+  document.getElementById('color-picker-toggle').click();
+  document.querySelector('#floating-view-controls [data-pattern="cross"]').click();
+  document.querySelector('#color-picker-options [data-color="blue"]').click();
+  assert.ok(has('se')); assert.ok(!has('dk')); assert.ok(!has('fr'));
+  document.querySelector('#color-picker-options [data-color="red"]').click();
+  assert.ok(has('se')); assert.ok(has('dk')); assert.ok(!has('fr'));
+  assert.equal(document.getElementById('color-picker').hidden, false);
+  document.querySelector('#main-color-options [data-color="all"]').click();
+  assert.ok(has('fi')); assert.ok(!has('jp'));
+  assert.equal(document.querySelector('#floating-view-controls [data-pattern="cross"]').getAttribute('aria-pressed'), 'true');
+  assert.equal(document.querySelector('#color-picker-options [data-color="all"]').getAttribute('aria-pressed'), 'true');
+});
+
+test('zero color matches do not lock out further color choices', t => {
+  const {document} = setup(t);
+  document.getElementById('color-picker-toggle').click();
+  document.querySelector('#color-picker-options [data-color="purple"]').click();
+  assert.equal(document.querySelectorAll('.flag-card').length, 0);
+  assert.match(document.querySelector('.empty-state').textContent, /No matching flags/);
+  assert.equal(document.getElementById('color-picker').hidden, false);
+  assert.equal(document.getElementById('restore').hidden, false);
+  document.querySelector('#color-picker-options [data-color="red"]').click();
+  assert.ok(document.querySelector('[data-code="fr"]'));
+  document.getElementById('restore').click();
+  assert.equal(document.querySelectorAll('.flag-card').length, 195);
+  for (const button of document.querySelectorAll('[data-color]')) {
+    assert.equal(button.getAttribute('aria-pressed'), String(button.dataset.color === 'all'));
   }
 });
 
-test('floating pattern selection stays open, then color jump uses filtered results', t => {
-  const {document, scrolls} = setup(t);
-  document.getElementById('color-picker-toggle').click();
-  document.querySelector('#floating-view-controls [data-pattern="cross"]').click();
-  assert.equal(document.getElementById('color-picker').hidden, false);
-  assert.equal(document.querySelector('#view-controls [data-pattern="cross"]').getAttribute('aria-pressed'), 'true');
-  assert.equal(document.querySelector('[data-color="orange"]').disabled, true);
-  document.querySelector('[data-color="blue"]').click();
-  assert.equal(scrolls.at(-1).id, 'group-blue');
+test('color filtering preserves hidden countries and undo', t => {
+  const {document} = setup(t);
+  document.querySelector('#main-color-options [data-color="red"]').click();
+  document.querySelector('[data-code="dk"] .hide-card').click();
+  document.querySelector('#main-color-options [data-color="blue"]').click();
+  assert.ok(!document.querySelector('[data-code="dk"]'));
+  document.getElementById('undo').click();
+  assert.ok(document.querySelector('[data-code="dk"]'));
+  document.getElementById('major-toggle').click();
   assert.ok(!document.querySelector('[data-code="fr"]'));
+  document.querySelector('#main-color-options [data-color="all"]').click();
+  assert.ok(!document.querySelector('[data-code="fr"]'));
+  document.getElementById('restore').click();
+  assert.equal(document.querySelectorAll('.flag-card').length, 195);
 });
 
 test('empty results remain recoverable through the floating panel and Restore all', t => {
@@ -112,7 +156,7 @@ test('all languages translate new controls and Arabic keeps right-to-left direct
   for (const option of document.querySelectorAll('#language-select option')) {
     const select = document.getElementById('language-select'); select.value = option.value;
     select.dispatchEvent(new window.Event('change'));
-    for (const label of document.querySelectorAll('.view-controls [data-i18n]')) {
+    for (const label of document.querySelectorAll('.view-controls [data-i18n], [data-color-label], #color-picker-title, #floating-color-help')) {
       assert.ok(label.textContent.length > 0); assert.ok(!label.textContent.includes('undefined'));
     }
     assert.equal(document.documentElement.dir, option.value === 'ar' ? 'rtl' : 'ltr');
