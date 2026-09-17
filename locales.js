@@ -36,3 +36,148 @@ const TRANSLATIONS = {
     language:'اللغة', home:'الصفحة الرئيسية لـ Name the Flag', title:'مرجع الأعلام', eyebrow:'العالم في لمحة', intro:'أخفِ ما تعرفه، وتعلّم ما لا تعرفه.', total:'علمًا · عالم واحد', options:'خيارات العرض', sort:'الترتيب حسب', color:'اللون', alpha:'اسم الدولة', major:'إخفاء الدول الرئيسية', list:'عرض القائمة', jump:'الانتقال إلى مجموعة', restore:'إظهار الكل', shown:'عرض {count} من أصل {total} علمًا', colorOrder:'حسب اللون الغالب', alphaOrder:'حسب أسماء الدول بالعربية', names:'أسماء الدول', empty:'كل الأعلام مخفية. اختر «إظهار الكل» للبدء من جديد.', dialogTitle:'قائمة الدول الرئيسية', dialogCopy:'مجموعة من 16 دولة معروفة للتدريب، وليست تصنيفًا رسميًا. يخفي المفتاح هذه الأعلام معًا. يمكنك أيضًا إخفاء أي علم باستخدام زر × في بطاقته.', close:'إغلاق', done:'حسنًا', undo:'تراجع', hide:'إخفاء {name}', hidden:'تم إخفاء: {name}', flag:'علم {name}', palette:'الألوان الرئيسية للعلم', source:'صور الأعلام من', footer:'تظهر أسماء الدول باللغة المختارة', method:'تُقدّر الألوان حسب مساحة الصورة. عند اختلاف النسب بما لا يتجاوز 2.5 نقطة مئوية، يُستخدم الترتيب: الأحمر، البرتقالي، الأصفر، الأخضر، الأزرق، البنفسجي، الأسود، الأبيض. يشمل 193 دولة عضوًا في الأمم المتحدة ودولتين بصفة مراقب.', colors:['أحمر','برتقالي','أصفر','أخضر','أزرق','بنفسجي','أسود','أبيض'], description:'مرجع أعلام مناسب للهاتف بأسماء دول مترجمة وترتيب حسب اللون أو الاسم وخيار إخفاء الدول.'
   }
 };
+
+// Layout and pattern-filter labels.
+const VIEW_TRANSLATIONS = {
+  "en": {
+    "columns": "Columns",
+    "columnCount": "{count} columns",
+    "pattern": "Pattern",
+    "allPatterns": "All patterns",
+    "patternVertical": "Left / right",
+    "patternHorizontal": "Up / down",
+    "patternCenter": "Central symbol",
+    "patternDiagonal": "Diagonal",
+    "patternCross": "Cross",
+    "patternHelp": "Select one or more. Flags matching any selected pattern are shown.",
+    "filteredEmpty": "No matching flags. Select “Restore all” to clear filters and hidden flags.",
+    "browse": "Browse"
+  },
+  "zh-CN": {
+    "columns": "列数",
+    "columnCount": "{count} 列",
+    "pattern": "图案",
+    "allPatterns": "全部图案",
+    "patternVertical": "左右分色",
+    "patternHorizontal": "上下分色",
+    "patternCenter": "中央图案",
+    "patternDiagonal": "斜线",
+    "patternCross": "十字",
+    "patternHelp": "可多选，显示符合任意所选图案的国旗。",
+    "filteredEmpty": "没有匹配的国旗。点击“恢复全部”清除筛选并显示隐藏的国旗。",
+    "browse": "浏览"
+  },
+  "zh-TW": {
+    "columns": "欄數",
+    "columnCount": "{count} 欄",
+    "pattern": "圖案",
+    "allPatterns": "全部圖案",
+    "patternVertical": "左右分色",
+    "patternHorizontal": "上下分色",
+    "patternCenter": "中央圖案",
+    "patternDiagonal": "斜線",
+    "patternCross": "十字",
+    "patternHelp": "可複選，顯示符合任一所選圖案的國旗。",
+    "filteredEmpty": "沒有符合的國旗。點選「恢復全部」清除篩選並顯示隱藏的國旗。",
+    "browse": "瀏覽"
+  },
+  "es": {
+    "columns": "Columnas",
+    "columnCount": "{count} columnas",
+    "pattern": "Diseño",
+    "allPatterns": "Todos los diseños",
+    "patternVertical": "Izquierda / derecha",
+    "patternHorizontal": "Arriba / abajo",
+    "patternCenter": "Símbolo central",
+    "patternDiagonal": "Diagonal",
+    "patternCross": "Cruz",
+    "patternHelp": "Selecciona uno o varios. Se muestran banderas que coincidan con cualquiera.",
+    "filteredEmpty": "No hay coincidencias. Selecciona «Restaurar todo» para quitar filtros y mostrar las banderas ocultas.",
+    "browse": "Explorar"
+  },
+  "fr": {
+    "columns": "Colonnes",
+    "columnCount": "{count} colonnes",
+    "pattern": "Motif",
+    "allPatterns": "Tous les motifs",
+    "patternVertical": "Gauche / droite",
+    "patternHorizontal": "Haut / bas",
+    "patternCenter": "Symbole central",
+    "patternDiagonal": "Diagonale",
+    "patternCross": "Croix",
+    "patternHelp": "Sélectionnez un ou plusieurs motifs. Les drapeaux correspondant à au moins un motif sont affichés.",
+    "filteredEmpty": "Aucun résultat. « Tout réafficher » efface les filtres et révèle les drapeaux masqués.",
+    "browse": "Parcourir"
+  },
+  "de": {
+    "columns": "Spalten",
+    "columnCount": "{count} Spalten",
+    "pattern": "Muster",
+    "allPatterns": "Alle Muster",
+    "patternVertical": "Links / rechts",
+    "patternHorizontal": "Oben / unten",
+    "patternCenter": "Zentrales Symbol",
+    "patternDiagonal": "Diagonal",
+    "patternCross": "Kreuz",
+    "patternHelp": "Ein oder mehrere Muster wählen. Flaggen mit mindestens einem gewählten Muster werden angezeigt.",
+    "filteredEmpty": "Keine Treffer. „Alle anzeigen“ entfernt Filter und zeigt ausgeblendete Flaggen.",
+    "browse": "Durchsuchen"
+  },
+  "pt": {
+    "columns": "Colunas",
+    "columnCount": "{count} colunas",
+    "pattern": "Padrão",
+    "allPatterns": "Todos os padrões",
+    "patternVertical": "Esquerda / direita",
+    "patternHorizontal": "Cima / baixo",
+    "patternCenter": "Símbolo central",
+    "patternDiagonal": "Diagonal",
+    "patternCross": "Cruz",
+    "patternHelp": "Selecione um ou mais padrões. São mostradas bandeiras com qualquer padrão selecionado.",
+    "filteredEmpty": "Sem resultados. Selecione «Mostrar todas» para limpar os filtros e mostrar as bandeiras ocultas.",
+    "browse": "Explorar"
+  },
+  "ja": {
+    "columns": "列数",
+    "columnCount": "{count} 列",
+    "pattern": "模様",
+    "allPatterns": "すべての模様",
+    "patternVertical": "左右の配色",
+    "patternHorizontal": "上下の配色",
+    "patternCenter": "中央のシンボル",
+    "patternDiagonal": "斜め",
+    "patternCross": "十字",
+    "patternHelp": "複数選択できます。選択した模様のいずれかに一致する国旗を表示します。",
+    "filteredEmpty": "一致する国旗がありません。「すべて再表示」で絞り込みと非表示を解除します。",
+    "browse": "表示設定"
+  },
+  "ko": {
+    "columns": "열 수",
+    "columnCount": "{count}열",
+    "pattern": "무늬",
+    "allPatterns": "모든 무늬",
+    "patternVertical": "좌우 배색",
+    "patternHorizontal": "상하 배색",
+    "patternCenter": "중앙 상징",
+    "patternDiagonal": "대각선",
+    "patternCross": "십자",
+    "patternHelp": "여러 개를 선택할 수 있습니다. 선택한 무늬 중 하나라도 일치하는 국기를 표시합니다.",
+    "filteredEmpty": "일치하는 국기가 없습니다. “모두 다시 표시”로 필터와 숨김을 해제하세요.",
+    "browse": "둘러보기"
+  },
+  "ar": {
+    "columns": "الأعمدة",
+    "columnCount": "{count} أعمدة",
+    "pattern": "النمط",
+    "allPatterns": "كل الأنماط",
+    "patternVertical": "يمين / يسار",
+    "patternHorizontal": "أعلى / أسفل",
+    "patternCenter": "رمز مركزي",
+    "patternDiagonal": "قطري",
+    "patternCross": "صليب",
+    "patternHelp": "اختر نمطًا أو أكثر. تظهر الأعلام المطابقة لأي نمط محدد.",
+    "filteredEmpty": "لا توجد أعلام مطابقة. اختر «إظهار الكل» لإزالة المرشحات وإظهار الأعلام المخفية.",
+    "browse": "تصفح"
+  }
+};
+for (const [locale, strings] of Object.entries(VIEW_TRANSLATIONS)) Object.assign(TRANSLATIONS[locale], strings);

@@ -7,6 +7,12 @@ const majorCodes = new Set('cn us gb fr de jp kr ca au in ru br it es mx za'.spl
 const hidden = new Set();
 const $ = id => document.getElementById(id);
 let sort = 'color', hideMajor = false, lastHidden = null, toastTimer;
+const selectedPatterns = new Set();
+let columns = window.matchMedia('(max-width: 600px)').matches ? 2 : 4;
+try {
+  const saved = Number(localStorage.getItem('flag-cheatsheet-columns'));
+  if ([2, 3, 4].includes(saved)) columns = saved;
+} catch {}
 const languageIds = LANGUAGES.map(([id]) => id);
 function matchLanguage(value) {
   if (typeof value !== 'string') return null;
@@ -41,7 +47,7 @@ function compareCountries(a, b) {
   return countryName(a).localeCompare(countryName(b), collationLocale()) || a.code.localeCompare(b.code);
 }
 function visibleCountries() {
-  return COUNTRIES.filter(c => !hidden.has(c.code) && !(hideMajor && majorCodes.has(c.code))).sort(compareCountries);
+  return COUNTRIES.filter(c => !hidden.has(c.code) && !(hideMajor && majorCodes.has(c.code)) && matchesFlagPatterns(c, selectedPatterns)).sort(compareCountries);
 }
 function element(tag, cls, txt) {
   const e = document.createElement(tag); if (cls) e.className = cls;
@@ -50,6 +56,60 @@ function element(tag, cls, txt) {
 function dot(key) {
   const d = element('span','dot'); d.style.background = colors.find(x => x[0] === key)?.[1] || '#aaa';
   d.setAttribute('aria-hidden','true'); return d;
+}
+function buildViewControls(container, prefix) {
+  const layout = element('fieldset', 'layout-control');
+  const legend = element('legend'); legend.dataset.i18n = 'columns';
+  layout.append(legend);
+  const choices = element('div', 'column-choices');
+  for (const count of [2, 3, 4]) {
+    const label = element('label', 'column-choice');
+    const input = element('input'); input.type = 'radio'; input.name = prefix + '-columns'; input.value = count;
+    const content = element('span', 'column-choice-content');
+    const icon = element('span', 'column-icon'); icon.setAttribute('aria-hidden', 'true');
+    for (let i = 0; i < count; i++) icon.append(element('i'));
+    content.append(icon, element('span', null, String(count)));
+    label.append(input, content); choices.append(label);
+    input.onchange = () => setColumns(count);
+  }
+  layout.append(choices); container.append(layout);
+  const patterns = element('fieldset', 'pattern-control');
+  const patternLegend = element('legend'); patternLegend.dataset.i18n = 'pattern';
+  patterns.append(patternLegend);
+  const buttons = element('div', 'pattern-choices');
+  for (const id of ['all', ...patternIds]) {
+    const button = element('button', 'pattern-choice'); button.type = 'button'; button.dataset.pattern = id;
+    const icon = element('span', 'pattern-icon pattern-' + id); icon.setAttribute('aria-hidden', 'true');
+    const label = element('span'); label.dataset.i18n = id === 'all' ? 'allPatterns' : 'pattern' + id[0].toUpperCase() + id.slice(1);
+    button.append(icon, label); buttons.append(button);
+    button.onclick = () => {
+      if (id === 'all') selectedPatterns.clear();
+      else if (selectedPatterns.has(id)) selectedPatterns.delete(id);
+      else selectedPatterns.add(id);
+      render();
+      if (prefix === 'floating') $('collection').scrollIntoView({block:'start', behavior:'instant'});
+    };
+  }
+  const help = element('p', 'pattern-help'); help.id = prefix + '-pattern-help'; help.dataset.i18n = 'patternHelp';
+  patterns.setAttribute('aria-describedby', help.id);
+  patterns.append(buttons, help); container.append(patterns);
+}
+function syncViewControls() {
+  document.documentElement.style.setProperty('--flag-columns', columns);
+  document.documentElement.dataset.columns = columns;
+  for (const input of document.querySelectorAll('.column-choice input')) {
+    input.checked = Number(input.value) === columns;
+    input.setAttribute('aria-label', t('columnCount', {count:input.value}));
+  }
+  for (const button of document.querySelectorAll('[data-pattern]')) {
+    button.setAttribute('aria-pressed', String(button.dataset.pattern === 'all' ? selectedPatterns.size === 0 : selectedPatterns.has(button.dataset.pattern)));
+  }
+}
+function setColumns(value) {
+  if (![2, 3, 4].includes(value)) throw new Error('Invalid column count');
+  columns = value;
+  try { localStorage.setItem('flag-cheatsheet-columns', String(value)); } catch {}
+  syncViewControls();
 }
 function applyTranslations() {
   document.documentElement.lang = language;
@@ -96,8 +156,7 @@ function closeColorPicker(restoreFocus = false) {
   if (restoreFocus) $('color-picker-toggle').focus({preventScroll:true});
 }
 function renderColorPicker(visible) {
-  const hadFocus = $('color-picker').contains(document.activeElement);
-  closeColorPicker(hadFocus);
+  const focusedColor = document.activeElement?.dataset.color;
   const available = new Set(visible.map(c => c.color));
   const options = document.createDocumentFragment();
   colors.forEach(([key], index) => {
@@ -109,12 +168,16 @@ function renderColorPicker(visible) {
     options.append(button);
   });
   $('color-picker-options').replaceChildren(options);
-  $('floating-colors').hidden = visible.length === 0;
+  $('floating-colors').hidden = false;
+  if (focusedColor) {
+    const replacement = $('color-picker-options').querySelector(`[data-color="${focusedColor}"]:not(:disabled)`);
+    (replacement || $('color-picker-toggle')).focus({preventScroll:true});
+  }
 }
 function render() {
   const visible = visibleCountries(); $('total').textContent = COUNTRIES.length;
   $('count').textContent = t('shown',{count:visible.length,total:COUNTRIES.length}) + ' · ' + t(sort === 'color' ? 'colorOrder' : 'alphaOrder');
-  $('restore').hidden = hidden.size === 0 && !hideMajor;
+  $('restore').hidden = hidden.size === 0 && !hideMajor && selectedPatterns.size === 0;
   for (const key of ['color','alpha']) {
     $('sort-' + key).classList.toggle('selected', sort === key);
     $('sort-' + key).setAttribute('aria-pressed', String(sort === key));
@@ -146,8 +209,9 @@ function render() {
   }
   $('group-nav').replaceChildren(nav); $('group-nav').hidden = sort === 'alpha' && /^(zh|ja|ko)/.test(language);
   $('collection').replaceChildren(content);
-  if (!visible.length) $('collection').append(element('div','empty-state',t('empty')));
+  if (!visible.length) $('collection').append(element('div','empty-state',t(selectedPatterns.size ? 'filteredEmpty' : 'empty')));
   renderColorPicker(visible);
+  syncViewControls();
 }
 function setLanguage(value, remember = true) {
   if (!languageIds.includes(value)) throw new Error('Unsupported language');
@@ -167,7 +231,7 @@ for (const [id, label] of LANGUAGES) { const option = element('option',null,labe
 $('language-select').onchange = e => setLanguage(e.target.value);
 $('sort-color').onclick = () => setSort('color'); $('sort-alpha').onclick = () => setSort('alpha');
 $('major-toggle').onchange = e => { hideMajor = e.target.checked; render(); };
-$('restore').onclick = () => { hidden.clear(); hideMajor = false; lastHidden = null; $('toast').hidden = true; render(); };
+$('restore').onclick = () => { hidden.clear(); selectedPatterns.clear(); hideMajor = false; lastHidden = null; $('toast').hidden = true; render(); };
 $('undo').onclick = () => { if (lastHidden) { hidden.delete(lastHidden); lastHidden = null; render(); } $('toast').hidden = true; };
 $('manage').onclick = () => $('major-dialog').showModal();
 $('close-dialog').onclick = $('dialog-done').onclick = () => $('major-dialog').close();
@@ -178,7 +242,7 @@ $('color-picker-toggle').onclick = () => {
   if (!$('color-picker').hidden) { closeColorPicker(); return; }
   $('color-picker').hidden = false;
   $('color-picker-toggle').setAttribute('aria-expanded', 'true');
-  $('color-picker-options').querySelector('button:not(:disabled)')?.focus({preventScroll:true});
+  ($('color-picker-options').querySelector('button:not(:disabled)') || $('floating-view-controls').querySelector('input:checked'))?.focus({preventScroll:true});
 };
 $('color-picker-options').onclick = e => {
   const button = e.target.closest('button[data-color]');
@@ -191,9 +255,10 @@ $('color-picker-options').onclick = e => {
   const heading = section.querySelector('h2');
   heading.tabIndex = -1;
   heading.focus({preventScroll:true});
-  section.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block:'start'});
+  // Jump immediately so long pages and mobile browsers always reach the target.
+  section.scrollIntoView({behavior:'instant', block:'start'});
 };
-document.addEventListener('click', e => {
+document.addEventListener('pointerdown', e => {
   if (!$('floating-colors').contains(e.target)) closeColorPicker();
 });
 $('floating-colors').addEventListener('keydown', e => {
@@ -201,10 +266,13 @@ $('floating-colors').addEventListener('keydown', e => {
     e.preventDefault();
     closeColorPicker(true);
   }
+  if (e.key === 'Tab') setTimeout(() => {
+    if (!$('floating-colors').contains(document.activeElement)) closeColorPicker();
+  }, 0);
 });
-$('floating-colors').addEventListener('focusout', e => {
-  if (!$('floating-colors').contains(e.relatedTarget)) closeColorPicker();
-});
+// Do not dismiss on blur: touch/Safari can blur before a color's click arrives.
+buildViewControls($('view-controls'), 'main');
+buildViewControls($('floating-view-controls'), 'floating');
 setLanguage(language,false);
 if (document.modelContext?.registerTool) {
   const lifecycle = new AbortController();
